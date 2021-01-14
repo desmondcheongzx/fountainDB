@@ -12,6 +12,12 @@ typedef enum {
 
 class Token {
 public:
+    Token (void) {}
+    Token (char t) : type{t} {}
+    Token (char t, std::string v) : type{t}, val{v} {
+        // Normalize the stored string
+        std::transform(val.begin(), val.end(), val.begin(), ::tolower);
+    }
     char type;
     std::string val = "";
 };
@@ -37,15 +43,15 @@ Token TokenStream::get ()
     switch (ch) {
     case '.': // meta command
         std::cin >> val;
-        return Token{'.', val};
+        return Token{ch, val};
     case ';':
         return Token{ch};
     default:
         std::cin.putback(ch);
         std::cin >> val;
-        return Token{'.', val};
+        return Token{'$', val};
     }
-    return Token{'q'};
+    return Token{';'};
 }
 
 void TokenStream::putback (Token t)
