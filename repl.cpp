@@ -20,7 +20,20 @@ public:
     }
     char type;
     std::string val = "";
+    std::string get_val();
 };
+
+std::string Token::get_val ()
+{
+    switch (type) {
+    case '.':
+    case '$':
+        return val;
+    default:
+        error("Token type has no value\n");
+    }
+    return "";
+}
 
 class TokenStream {
 public:
@@ -39,6 +52,7 @@ Token TokenStream::get ()
     }
     char ch;
     std::string val;
+
     std::cin >> ch;
     switch (ch) {
     case '.': // meta command
@@ -64,7 +78,7 @@ void TokenStream::putback (Token t)
 
 MetaCommandResult execute_meta_command (Token t)
 {
-    if (t.val == "exit") {
+    if (t.get_val() == "exit") {
         exit(0);
     }
     return META_COMMAND_UNRECOGNIZED;
@@ -87,7 +101,8 @@ int main()
                 }
                 continue;
             }
-            std::cout << t.val << std::endl;
+
+            std::cout << t.get_val() << std::endl;
         }
         catch (std::string err) {
             std::cerr << err << std::endl;
