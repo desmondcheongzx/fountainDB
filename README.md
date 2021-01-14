@@ -1,1 +1,27 @@
-# fountainDB
+# FountainDB
+
+## Supported types
+
+In the current iteration, we only store strings in-memory, in a single table.
+
+## Grammar
+
+In the current iteration, we support 3 kinds of statements.
+
+To quit the repl:
+
+```
+fountainDB> .exit
+```
+
+To insert a string into the table:
+
+```
+fountainDB> INSERT str
+```
+
+To show all strings in the table:
+
+```
+fountainDB> SHOW
+```

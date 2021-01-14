@@ -6,9 +6,19 @@ typedef enum {
 } MetaCommandResult;
 
 typedef enum {
-    PREPARE_SUCCESS,
-    PREPARE_UNRECOGNIZED
-} PrepareResult;
+    STATEMENT_SUCCESS,
+    STATEMENT_UNRECOGNIZED
+} StatementResult;
+
+typedef enum {
+    INSERT,
+    SHOW
+} StatementType;
+
+std::map <std::string, StatementType> statement_type_map = {
+    {"insert", INSERT},
+    {"show", SHOW}
+};
 
 class Token {
 public:
@@ -85,6 +95,30 @@ MetaCommandResult execute_meta_command (Token t)
 }
 
 TokenStream token_stream;
+std::vector<std::string> table;
+
+StatementResult dispatch_statement (Token t)
+{
+    std::string command = t.get_val();
+    std::string entry;
+
+    if (statement_type_map.find(command) == statement_type_map.end()) {
+        error("Command not known\n");
+    }
+    switch (statement_type_map[command]) {
+    case INSERT:
+        std::cin >> entry;
+        table.push_back(entry);
+        return STATEMENT_SUCCESS;
+    case SHOW:
+        for (std::vector<std::string>::iterator vi = table.begin();
+             vi != table.end(); vi++) {
+            std::cout << *vi << std::endl;
+        }
+        return STATEMENT_SUCCESS;
+    }
+    return STATEMENT_UNRECOGNIZED;
+}
 
 int main()
 {
@@ -101,8 +135,7 @@ int main()
                 }
                 continue;
             }
-
-            std::cout << t.get_val() << std::endl;
+            dispatch_statement(t);
         }
         catch (std::string err) {
             std::cerr << err << std::endl;
