@@ -15,6 +15,17 @@ typedef enum {
     SHOW
 } StatementType;
 
+const std::string prompt = "fountainDB> ";
+
+// meta commands start with this char
+const char meta_prefix = '.';
+
+// tokens with this char as their type are normal statements
+const char statement_prefix = '$';
+
+// a complete query should end with this symbol
+const char terminating_symbol = ';';
+
 std::map <std::string, StatementType> statement_type_map = {
     {"insert", INSERT},
     {"show", SHOW}
@@ -36,8 +47,8 @@ public:
 std::string Token::get_val ()
 {
     switch (type) {
-    case '.':
-    case '$':
+    case meta_prefix:
+    case statement_prefix:
         return val;
     default:
         error("Token type has no value\n");
@@ -65,17 +76,17 @@ Token TokenStream::get ()
 
     std::cin >> ch;
     switch (ch) {
-    case '.': // meta command
+    case meta_prefix:
         std::cin >> val;
         return Token{ch, val};
-    case ';':
+    case terminating_symbol:
         return Token{ch};
     default:
         std::cin.putback(ch);
         std::cin >> val;
-        return Token{'$', val};
+        return Token{statement_prefix, val};
     }
-    return Token{';'};
+    return Token{terminating_symbol};
 }
 
 void TokenStream::putback (Token t)
@@ -124,9 +135,9 @@ int main()
 {
     while (std::cin) {
         try {
-            std::cout << "fountainDB> ";
+            std::cout << prompt;
             Token t = token_stream.get();
-            if (t.type == '.') {
+            if (t.type == meta_prefix) {
                 switch (execute_meta_command(t)) {
                 case (META_COMMAND_SUCCESS):
                     break;
