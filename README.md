@@ -6,7 +6,7 @@ In the current iteration, we only store strings in-memory, in a single table.
 
 ## Grammar
 
-In the current iteration, we support 3 kinds of statements.
+In the current iteration, we support 4 kinds of statements.
 
 To quit the repl:
 
@@ -24,4 +24,10 @@ To show all strings in the table:
 
 ```
 fountainDB> SHOW
+```
+
+To delete a string from the table:
+
+```
+fountainDB> DELETE str
 ```

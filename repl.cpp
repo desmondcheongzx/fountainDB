@@ -12,7 +12,8 @@ typedef enum {
 
 typedef enum {
     INSERT,
-    SHOW
+    SHOW,
+    DELETE
 } StatementType;
 
 const std::string prompt = "fountainDB> ";
@@ -28,7 +29,8 @@ const char terminating_symbol = ';';
 
 std::map <std::string, StatementType> statement_type_map = {
     {"insert", INSERT},
-    {"show", SHOW}
+    {"show", SHOW},
+    {"delete", DELETE}
 };
 
 class Token {
@@ -126,6 +128,16 @@ StatementResult dispatch_statement (Token t)
             std::cout << *vi << std::endl;
         }
         return STATEMENT_SUCCESS;
+    case DELETE:
+        std::cin >> entry;
+        for (std::vector<std::string>::iterator vi = table.begin();
+             vi != table.end(); vi++) {
+            if (*vi == entry) {
+                table.erase(vi);
+                return STATEMENT_SUCCESS;
+            }
+        }
+        error("Entry for " + entry + " was not found");
     }
     return STATEMENT_UNRECOGNIZED;
 }
