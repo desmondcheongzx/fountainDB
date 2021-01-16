@@ -105,7 +105,6 @@ MetaCommandResult execute_meta_command (Token t)
     return META_COMMAND_UNRECOGNIZED;
 }
 
-TokenStream token_stream;
 std::vector<std::string> table;
 
 StatementResult dispatch_statement (Token t)
@@ -133,6 +132,7 @@ StatementResult dispatch_statement (Token t)
 
 int main()
 {
+    TokenStream token_stream;
     while (std::cin) {
         try {
             std::cout << prompt;
