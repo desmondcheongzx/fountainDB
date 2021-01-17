@@ -1,4 +1,5 @@
 #include "utils.h"
+#include "token.h"
 #include "table.h"
 
 typedef enum {
@@ -36,84 +37,6 @@ std::map <std::string, StatementType> statement_type_map = {
 };
 
 const std::string prompt = "fountainDB> ";
-
-// meta commands start with this char
-const char meta_prefix = '.';
-
-// tokens with this char as their type are normal statements
-const char statement_prefix = '$';
-
-// a complete query should end with this symbol
-const char terminating_symbol = ';';
-
-// unset tokens have this type
-const char TOKEN_UNSET = '\0';
-
-class Token {
-public:
-    Token (void) {}
-    Token (char t) : type{t} {}
-    Token (char t, std::string v) : type{t}, val{v} {
-        // Normalize the stored string
-        std::transform(val.begin(), val.end(), val.begin(), ::tolower);
-    }
-    char type = TOKEN_UNSET;
-    std::string val = "";
-    std::string get_val();
-};
-
-std::string Token::get_val ()
-{
-    switch (type) {
-    case meta_prefix:
-    case statement_prefix:
-        return val;
-    default:
-        error("Token type has no value\n");
-    }
-    return "";
-}
-
-class TokenStream {
-public:
-    Token get();
-    void putback(Token t);
-private:
-    Token buffer;
-    bool buffer_filled = false;
-};
-
-Token TokenStream::get ()
-{
-    if (buffer_filled) {
-        buffer_filled = false;
-        return buffer;
-    }
-    char ch;
-    std::string val;
-
-    std::cin >> ch;
-    switch (ch) {
-    case meta_prefix:
-        std::cin >> val;
-        return Token{ch, val};
-    case terminating_symbol:
-        return Token{ch};
-    default:
-        std::cin.putback(ch);
-        std::cin >> val;
-        return Token{statement_prefix, val};
-    }
-    return Token{terminating_symbol};
-}
-
-void TokenStream::putback (Token t)
-{
-    if (buffer_filled)
-        error("Your buffer is full");
-    buffer = t;
-    buffer_filled = true;
-}
 
 MetaCommandResult execute_meta_command(Table& table, Token t)
 {
