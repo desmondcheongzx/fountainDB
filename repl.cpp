@@ -79,11 +79,11 @@ ExecuteResult execute_delete(Table& table)
 ExecuteResult dispatch_statement(Table& table, const Statement& instruction)
 {
     switch (instruction.type) {
-    case StatementType::INSERT:
+    case (StatementType::INSERT):
         return execute_insert(table, instruction.row_info);
-    case StatementType::SHOW:
+    case (StatementType::SHOW):
         return execute_show(table);
-    case StatementType::DELETE:
+    case (StatementType::DELETE):
         return ExecuteResult::FAIL;
     default:
         return ExecuteResult::FAIL;
