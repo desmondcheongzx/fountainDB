@@ -26,11 +26,11 @@ To show all rows in the table:
 fountainDB> SHOW
 ```
 
-~~To delete a string from the table:
+~~To delete a string from the table:~~
 
-```
-fountainDB> DELETE str
-```~~
+~~```~~
+~~fountainDB> DELETE str~~
+~~```~~
 
 ## Credits
 
