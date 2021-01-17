@@ -4,18 +4,21 @@
 Token::Token(void) {}
 
 Token::Token(char t)
+    :type{t}
 {
-    type = t;
 }
 
 Token::Token (char t, std::string v)
+    :type{t}, val{v}
 {
-    type = t;
-    val = v;
     // Normalize the stored string
     std::transform(val.begin(), val.end(), val.begin(), ::tolower);
 }
 
+char Token::get_type()
+{
+    return type;
+}
 
 std::string Token::get_val()
 {

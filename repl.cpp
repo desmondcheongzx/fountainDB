@@ -120,9 +120,9 @@ void handle_input()
     while (std::cin) {
         std::cout << prompt;
         Token t = token_stream.get();
-        if (t.type == TOKEN_UNSET)
+        if (t.get_type() == TOKEN_UNSET)
             break;
-        if (t.type == meta_prefix) {
+        if (t.get_type() == meta_prefix) {
             switch (execute_meta_command(table, t)) {
             case MetaCommandResult::SUCCESS:
                 continue;

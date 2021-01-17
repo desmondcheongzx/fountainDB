@@ -18,9 +18,11 @@ public:
     Token();
     Token(char t);
     Token(char t, std::string v);
+    char get_type();
+    std::string get_val();
+private:
     char type = TOKEN_UNSET;
     std::string val = "";
-    std::string get_val();
 };
 
 class TokenStream {
