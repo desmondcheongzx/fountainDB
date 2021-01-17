@@ -16,14 +16,14 @@ const uint_fast32_t ROW_SIZE = ID_SIZE + NAME_SIZE;
 
 void serialize_row(const Row& source, void* destination)
 {
-    memcpy(destination + ID_OFFSET, &(source.id), ID_SIZE);
-    memcpy(destination + NAME_OFFSET, &(source.name), NAME_SIZE);
+    memcpy((char*) destination + ID_OFFSET, &(source.id), ID_SIZE);
+    strncpy((char*) destination + NAME_OFFSET, source.name, NAME_SIZE);
 }
 
 void deserialize_row(const void* source, Row& destination)
 {
     memcpy(&(destination.id), source, ID_SIZE);
-    memcpy(&(destination.name), source + NAME_OFFSET, NAME_SIZE);
+    strncpy(destination.name, (char*) source + NAME_OFFSET, NAME_SIZE);
 }
 
 // Each page stores 4 kB, similar to most virtual memory systems
