@@ -2,28 +2,32 @@
 #include "token.h"
 #include "table.h"
 
-typedef enum {
-    META_COMMAND_SUCCESS,
-    META_COMMAND_UNRECOGNIZED
-} MetaCommandResult;
+enum class MetaCommandResult
+{
+    SUCCESS,
+    UNRECOGNIZED
+};
 
-typedef enum {
-    EXECUTE_SUCCESS,
-    EXECUTE_TABLE_FULL,
-    EXECUTE_FAIL
-} ExecuteResult;
+enum class ExecuteResult
+{
+    SUCCESS,
+    TABLE_FULL,
+    FAIL
+};
 
-typedef enum {
-    STATEMENT_SUCCESS,
-    STATEMENT_SYNTAX_ERROR,
-    STATEMENT_UNRECOGNIZED
-} StatementResult;
+enum class StatementResult
+{
+    SUCCESS,
+    SYNTAX_ERROR,
+    UNRECOGNIZED
+};
 
-typedef enum {
-    STATEMENT_INSERT,
-    STATEMENT_SHOW,
-    STATEMENT_DELETE
-} StatementType;
+enum class StatementType
+{
+    INSERT,
+    SHOW,
+    DELETE
+};
 
 typedef struct {
     StatementType type;
@@ -31,9 +35,9 @@ typedef struct {
 } Statement;
 
 std::map <std::string, StatementType> statement_type_map = {
-    {"insert", STATEMENT_INSERT},
-    {"show", STATEMENT_SHOW},
-    {"delete", STATEMENT_DELETE}
+    {"insert", StatementType::INSERT},
+    {"show", StatementType::SHOW},
+    {"delete", StatementType::DELETE}
 };
 
 const std::string prompt = "fountainDB> ";
@@ -44,16 +48,16 @@ MetaCommandResult execute_meta_command(Table& table, Token t)
         table.free_table();
         exit(0);
     }
-    return META_COMMAND_UNRECOGNIZED;
+    return MetaCommandResult::SUCCESS;
 }
 
 ExecuteResult execute_insert(Table& table, const Row& row_info)
 {
     if (table.num_rows >= TABLE_MAX_ROWS)
-        return EXECUTE_TABLE_FULL;
+        return ExecuteResult::TABLE_FULL;
     serialize_row(row_info, table.row_slot(table.num_rows));
     table.num_rows++;
-    return EXECUTE_SUCCESS;
+    return ExecuteResult::SUCCESS;
 }
 
 ExecuteResult execute_show(Table& table)
@@ -63,28 +67,28 @@ ExecuteResult execute_show(Table& table)
         deserialize_row(table.row_slot(i), row);
         print_row(row);
     }
-    return EXECUTE_SUCCESS;
+    return ExecuteResult::SUCCESS;
 }
 
 ExecuteResult execute_delete(Table& table)
 {
-    return EXECUTE_FAIL;
+    return ExecuteResult::FAIL;
 }
 
 
 ExecuteResult dispatch_statement(Table& table, const Statement& instruction)
 {
     switch (instruction.type) {
-    case STATEMENT_INSERT:
+    case StatementType::INSERT:
         return execute_insert(table, instruction.row_info);
-    case STATEMENT_SHOW:
+    case StatementType::SHOW:
         return execute_show(table);
-    case STATEMENT_DELETE:
-        return EXECUTE_FAIL;
+    case StatementType::DELETE:
+        return ExecuteResult::FAIL;
     default:
-        return EXECUTE_FAIL;
+        return ExecuteResult::FAIL;
     }
-    return EXECUTE_SUCCESS;
+    return ExecuteResult::SUCCESS;
 }
 
 StatementResult prepare_statement(Statement& result, Token t)
@@ -94,19 +98,19 @@ StatementResult prepare_statement(Statement& result, Token t)
     result.row_info.id = 0;
     result.row_info.name[0] = '\0';
     if (statement_type_map.find(command) == statement_type_map.end())
-        return STATEMENT_UNRECOGNIZED;
+        return StatementResult::UNRECOGNIZED;
     result.type = statement_type_map[command];
     switch (result.type) {
-    case STATEMENT_INSERT:
+    case (StatementType::INSERT):
         std::cin >> result.row_info.id >> result.row_info.name;
-        return STATEMENT_SUCCESS;
-    case STATEMENT_SHOW:
-        return STATEMENT_SUCCESS;
-    case STATEMENT_DELETE:
+        return StatementResult::SUCCESS;
+    case (StatementType::SHOW):
+        return StatementResult::SUCCESS;
+    case (StatementType::DELETE):
         // TODO
-        return STATEMENT_SUCCESS;
+        return StatementResult::SUCCESS;
     }
-    return STATEMENT_UNRECOGNIZED;
+    return StatementResult::UNRECOGNIZED;
 }
 
 void handle_input()
@@ -120,9 +124,9 @@ void handle_input()
             break;
         if (t.type == meta_prefix) {
             switch (execute_meta_command(table, t)) {
-            case META_COMMAND_SUCCESS:
+            case MetaCommandResult::SUCCESS:
                 continue;
-            case META_COMMAND_UNRECOGNIZED:
+            case MetaCommandResult::UNRECOGNIZED:
                 std::cerr << "Command is not recognized.\n";
                 continue;
             default:
@@ -132,23 +136,23 @@ void handle_input()
 
         Statement instruction;
         switch (prepare_statement(instruction, t)) {
-        case STATEMENT_SUCCESS:
+        case (StatementResult::SUCCESS):
             break;
-        case STATEMENT_SYNTAX_ERROR:
+        case (StatementResult::SYNTAX_ERROR):
             std::cerr << "Syntax error for " + t.get_val() + " instruction.\n";
             continue;
-        case STATEMENT_UNRECOGNIZED:
+        case (StatementResult::UNRECOGNIZED):
             std::cerr << "Unrecognized instruction: " + t.get_val() + ".\n";
             continue;
         }
 
         switch (dispatch_statement(table, instruction)) {
-        case EXECUTE_SUCCESS:
+        case (ExecuteResult::SUCCESS):
             break;
-        case EXECUTE_TABLE_FULL:
+        case (ExecuteResult::TABLE_FULL):
             std::cerr << "Error: Table full.\n";
             continue;
-        case EXECUTE_FAIL:
+        case (ExecuteResult::FAIL):
             std::cerr << "Error: Execution failed.\n";
             continue;
         }
