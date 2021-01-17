@@ -1,79 +1,5 @@
 #include "utils.h"
-#define size_of_attribute(Struct, Attribute) sizeof(Struct::Attribute)
-
-#define COLUMN_NAME_SIZE 32
-
-typedef struct {
-    uint_fast32_t id;
-    char name[COLUMN_NAME_SIZE + 1];
-} Row;
-
-const uint_fast32_t ID_OFFSET = 0;
-const uint_fast32_t ID_SIZE = size_of_attribute(Row, id);
-const uint_fast32_t NAME_OFFSET = ID_OFFSET + ID_SIZE;
-const uint_fast32_t NAME_SIZE = size_of_attribute(Row, name);
-const uint_fast32_t ROW_SIZE = ID_SIZE + NAME_SIZE;
-
-void serialize_row(const Row& source, void* destination)
-{
-    memcpy((char*) destination + ID_OFFSET, &(source.id), ID_SIZE);
-    strncpy((char*) destination + NAME_OFFSET, source.name, NAME_SIZE);
-}
-
-void deserialize_row(const void* source, Row& destination)
-{
-    memcpy(&(destination.id), source, ID_SIZE);
-    strncpy(destination.name, (char*) source + NAME_OFFSET, NAME_SIZE);
-}
-
-// Each page stores 4 kB, similar to most virtual memory systems
-const uint_fast32_t PAGE_SIZE = 4096;
-#define TABLE_MAX_PAGES 100
-const uint_fast32_t ROWS_PER_PAGE = PAGE_SIZE / ROW_SIZE;
-const uint_fast32_t TABLE_MAX_ROWS = ROWS_PER_PAGE * TABLE_MAX_PAGES;
-
-class Table {
-public:
-    Table() {
-        pages.reserve(TABLE_MAX_PAGES);
-    }
-    uint_fast32_t num_rows = 0;
-    std::vector<char*> pages;
-    void free_table();
-};
-
-void Table::free_table()
-{
-    for (char* page : pages)
-        delete[] page;
-}
-
-char* make_page()
-{
-    char* new_page = new char[PAGE_SIZE];
-    return new_page;
-}
-
-void* row_slot(Table& table, uint_fast32_t row_num)
-{
-    uint_fast32_t page_num = row_num / ROWS_PER_PAGE;
-    char* page;
-    if (page_num >= table.pages.size()) {
-        table.pages.push_back(make_page());
-        page = table.pages.back();
-    } else {
-        page = table.pages.at(page_num);
-    }
-    uint_fast32_t row_offset = row_num % ROWS_PER_PAGE;
-    uint_fast32_t byte_offset = row_offset * ROW_SIZE;
-    return page + byte_offset;
-}
-
-void print_row(const Row& row)
-{
-    std::cout << (uint_fast32_t) row.id << " ";
-    std::cout << (std::string) row.name << std::endl;
-}
+#include "table.h"
 
 typedef enum {
     META_COMMAND_SUCCESS,
@@ -189,7 +115,7 @@ void TokenStream::putback (Token t)
     buffer_filled = true;
 }
 
-MetaCommandResult execute_meta_command (Table& table, Token t)
+MetaCommandResult execute_meta_command(Table& table, Token t)
 {
     if (t.get_val() == "exit") {
         table.free_table();
@@ -202,7 +128,7 @@ ExecuteResult execute_insert(Table& table, const Row& row_info)
 {
     if (table.num_rows >= TABLE_MAX_ROWS)
         return EXECUTE_TABLE_FULL;
-    serialize_row(row_info, row_slot(table, table.num_rows));
+    serialize_row(row_info, table.row_slot(table.num_rows));
     table.num_rows++;
     return EXECUTE_SUCCESS;
 }
@@ -211,7 +137,7 @@ ExecuteResult execute_show(Table& table)
 {
     Row row;
     for (uint_fast32_t i = 0; i < table.num_rows; i++) {
-        deserialize_row(row_slot(table, i), row);
+        deserialize_row(table.row_slot(i), row);
         print_row(row);
     }
     return EXECUTE_SUCCESS;
