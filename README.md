@@ -31,3 +31,6 @@ To delete a string from the table:
 ```
 fountainDB> DELETE str
 ```
+## Credits
+
+For the initial database design, we took reference from Connor Stack's [sqlite clone in C](https://github.com/cstack/db_tutorial).
