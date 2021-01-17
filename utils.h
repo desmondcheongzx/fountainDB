@@ -1,6 +1,9 @@
 #include <algorithm>
+#include <cstddef>
+#include <cstring>
 #include <iostream>
 #include <map>
+#include <memory>
 #include <vector>
 #include <string>
 

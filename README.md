@@ -2,7 +2,7 @@
 
 ## Supported types
 
-In the current iteration, we only store strings in-memory, in a single table.
+In the current iteration, we only store rows with attributes id (unsigned integers) and name (strings) in-memory, in a single table.
 
 ## Grammar
 
@@ -14,23 +14,24 @@ To quit the repl:
 fountainDB> .exit
 ```
 
-To insert a string into the table:
+To insert a rows into the table:
 
 ```
-fountainDB> INSERT str
+fountainDB> INSERT id str
 ```
 
-To show all strings in the table:
+To show all rows in the table:
 
 ```
 fountainDB> SHOW
 ```
 
-To delete a string from the table:
+~~To delete a string from the table:
 
 ```
 fountainDB> DELETE str
-```
+```~~
+
 ## Credits
 
 For the initial database design, we took reference from Connor Stack's [sqlite clone in C](https://github.com/cstack/db_tutorial).
