@@ -15,12 +15,12 @@ Token::Token (char t, std::string v)
     std::transform(val.begin(), val.end(), val.begin(), ::tolower);
 }
 
-char Token::get_type()
+char Token::get_type() const
 {
     return type;
 }
 
-std::string Token::get_val()
+std::string Token::get_val() const
 {
     switch (type) {
     case meta_prefix:

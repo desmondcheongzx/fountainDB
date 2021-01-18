@@ -18,8 +18,8 @@ public:
     Token();
     Token(char t);
     Token(char t, std::string v);
-    char get_type();
-    std::string get_val();
+    char get_type() const;
+    std::string get_val() const;
 private:
     char type = TOKEN_UNSET;
     std::string val = "";
