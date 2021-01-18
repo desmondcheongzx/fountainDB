@@ -42,6 +42,11 @@ Token TokenStream::get()
     std::string val;
 
     std::cin >> ch;
+
+    // Check for input errors
+    if (!std::cin)
+        return Token{};
+
     switch (ch) {
     case meta_prefix:
         std::cin >> val;
