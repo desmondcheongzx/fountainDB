@@ -26,14 +26,25 @@ void serialize_row(const Row& source, void* destination);
 void deserialize_row(const void* source, Row& destination);
 void print_row(const Row& row);
 
+class Pager {
+public:
+    void set_file(const std::string& filename);
+private:
+    std::fstream fs;
+    uint_fast32_t file_length{0};
+    void* pages[TABLE_MAX_PAGES];
+};
+
 class Table {
 public:
-    Table();
+    Table(const std::string& filename);
     uint_fast32_t num_rows = 0;
     std::vector<char*> pages;
 
     void free_table();
     void* row_slot(uint_fast32_t row_num);
+private:
+    Pager* pager;
 };
 
 #endif

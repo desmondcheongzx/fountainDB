@@ -19,7 +19,24 @@ void print_row(const Row& row)
     std::cout << (std::string) row.name << std::endl;
 }
 
-Table::Table() {
+void Pager::set_file(const std::string& filename)
+{
+    fs = std::fstream{
+        filename,
+        std::ios_base::in|
+        std::ios_base::out|
+        std::ios_base::binary|
+        std::ios_base::ate};
+    if (!fs)
+        error("Can't open input file " + filename);
+    file_length = fs.tellg();
+
+    std::cout << file_length << std::endl;
+}
+
+Table::Table(const std::string& filename)
+{
+    (*pager).set_file(filename);
     pages.reserve(TABLE_MAX_PAGES);
 }
 
