@@ -44,7 +44,7 @@ public:
     void free_table();
     void* row_slot(uint_fast32_t row_num);
 private:
-    Pager* pager;
+    Pager pager;
 };
 
 #endif

@@ -116,7 +116,7 @@ StatementResult prepare_statement(Statement& result, Token t)
 void handle_input()
 {
     TokenStream token_stream;
-    Table table{"test.txt"};
+    Table table{"tmp.txt"};
     while (std::cin) {
         std::cout << prompt;
         Token t = token_stream.get();

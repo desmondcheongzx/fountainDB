@@ -36,7 +36,7 @@ void Pager::set_file(const std::string& filename)
 
 Table::Table(const std::string& filename)
 {
-    (*pager).set_file(filename);
+    pager.set_file(filename);
     pages.reserve(TABLE_MAX_PAGES);
 }
 
