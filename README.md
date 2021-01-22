@@ -2,7 +2,7 @@
 
 ## Supported types
 
-In the current iteration, we only store rows with attributes id (unsigned integers) and name (strings) in-memory, in a single table.
+In the current iteration, we support persistent storage of a single table on disk. However, we fix rows to have two attributes: id (unsigned integers), and name (strings).
 
 ## Grammar
 
@@ -34,4 +34,4 @@ fountainDB> SHOW
 
 ## Credits
 
-For the initial database design, we took reference from Connor Stack's [sqlite clone in C](https://github.com/cstack/db_tutorial).
+For the initial database design, we took reference from Connor Stack's [sqlite clone in C](https://github.com/cstack/db_tutorial) under [The MIT License](https://opensource.org/licenses/MIT).
