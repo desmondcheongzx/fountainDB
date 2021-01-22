@@ -1,6 +1,8 @@
 #ifndef TOKEN_H
 #define TOKEN_H
 
+#include <string>
+
 // meta commands start with this char
 const char meta_prefix = '.';
 

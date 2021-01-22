@@ -1,6 +1,9 @@
 #ifndef TABLE_H
 #define TABLE_H
 
+#include <fstream>
+#include <string>
+
 #define size_of_attribute(Struct, Attribute) sizeof(Struct::Attribute)
 #define COLUMN_NAME_SIZE 32
 
@@ -49,6 +52,7 @@ public:
     void* row_slot(uint_fast32_t row_num);
     uint_fast32_t num_rows() { return pager.get_rows(); }
     void inc_rows() { pager.inc_rows(); }
+    char* get_page(uint_fast32_t page_num) { return pager.get_page(page_num); }
     void db_close();
 private:
     Pager pager;

@@ -1,6 +1,7 @@
 #include "utils.h"
 #include "token.h"
 #include "table.h"
+#include "cursor.h"
 
 enum class MetaCommandResult
 {
@@ -55,7 +56,9 @@ ExecuteResult execute_insert(Table& table, const Row& row_info)
 {
     if (table.num_rows() >= TABLE_MAX_ROWS)
         return ExecuteResult::TABLE_FULL;
-    serialize_row(row_info, table.row_slot(table.num_rows()));
+    Cursor cursor;
+    cursor.goto_end(&table);
+    serialize_row(row_info, cursor.value());
     table.inc_rows();
     return ExecuteResult::SUCCESS;
 }
@@ -63,9 +66,12 @@ ExecuteResult execute_insert(Table& table, const Row& row_info)
 ExecuteResult execute_show(Table& table)
 {
     Row row;
-    for (uint_fast32_t i = 0; i < table.num_rows(); i++) {
-        deserialize_row(table.row_slot(i), row);
+    Cursor cursor;
+    cursor.goto_start(&table);
+    while (!cursor.end()) {
+        deserialize_row(cursor.value(), row);
         print_row(row);
+        cursor.advance();
     }
     return ExecuteResult::SUCCESS;
 }
