@@ -29,20 +29,27 @@ void print_row(const Row& row);
 class Pager {
 public:
     void set_file(const std::string& filename);
+    char* get_page(uint_fast32_t page_num);
+    void free_pager();
+    uint_fast32_t get_rows() { return num_rows; }
+    void inc_rows() { num_rows++; }
+    void flush();
 private:
+    uint_fast32_t num_rows = 0;
     std::fstream fs;
     uint_fast32_t file_length{0};
-    void* pages[TABLE_MAX_PAGES];
+    char* pages[TABLE_MAX_PAGES];
 };
 
 class Table {
 public:
-    Table(const std::string& filename);
-    uint_fast32_t num_rows = 0;
-    std::vector<char*> pages;
+    void db_open(const std::string& filename);
 
     void free_table();
     void* row_slot(uint_fast32_t row_num);
+    uint_fast32_t num_rows() { return pager.get_rows(); }
+    void inc_rows() { pager.inc_rows(); }
+    void db_close();
 private:
     Pager pager;
 };

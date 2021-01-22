@@ -45,7 +45,7 @@ const std::string prompt = "fountainDB> ";
 MetaCommandResult execute_meta_command(Table& table, Token t)
 {
     if (t.get_val() == "exit") {
-        table.free_table();
+        table.db_close();
         exit(0);
     }
     return MetaCommandResult::SUCCESS;
@@ -53,17 +53,17 @@ MetaCommandResult execute_meta_command(Table& table, Token t)
 
 ExecuteResult execute_insert(Table& table, const Row& row_info)
 {
-    if (table.num_rows >= TABLE_MAX_ROWS)
+    if (table.num_rows() >= TABLE_MAX_ROWS)
         return ExecuteResult::TABLE_FULL;
-    serialize_row(row_info, table.row_slot(table.num_rows));
-    table.num_rows++;
+    serialize_row(row_info, table.row_slot(table.num_rows()));
+    table.inc_rows();
     return ExecuteResult::SUCCESS;
 }
 
 ExecuteResult execute_show(Table& table)
 {
     Row row;
-    for (uint_fast32_t i = 0; i < table.num_rows; i++) {
+    for (uint_fast32_t i = 0; i < table.num_rows(); i++) {
         deserialize_row(table.row_slot(i), row);
         print_row(row);
     }
@@ -116,7 +116,8 @@ StatementResult prepare_statement(Statement& result, Token t)
 void handle_input()
 {
     TokenStream token_stream;
-    Table table{"tmp.txt"};
+    Table table;
+    table.db_open("tmp.txt");
     while (std::cin) {
         std::cout << prompt;
         Token t = token_stream.get();
@@ -157,7 +158,7 @@ void handle_input()
             continue;
         }
     }
-    table.free_table();
+    table.db_close();
 }
 
 int main()
