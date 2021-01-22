@@ -27,16 +27,16 @@ char* make_page()
 
 void Pager::set_file(const std::string& filename)
 {
-    fs = std::fstream{
+    fs.open(
         filename,
         std::ios_base::in|
         std::ios_base::out|
         std::ios_base::binary|
-        std::ios_base::ate};
+        std::ios_base::ate);
     if (!fs)
         error("Can't open input file " + filename);
     file_length = fs.tellg();
-    
+
     num_rows = file_length / ROW_SIZE;
 
     for (uint_fast32_t i = 0; i < TABLE_MAX_PAGES; i++) {
@@ -51,13 +51,14 @@ char* Pager::get_page(uint_fast32_t page_num)
 
     char* page = make_page();
     uint_fast32_t num_pages = file_length / PAGE_SIZE;
-    if (file_length % PAGE_SIZE)
-        ++num_pages;
-
-    if (page_num <= num_pages) {
+    if (page_num < num_pages) {
         fs.seekg(page_num * PAGE_SIZE);
         fs.read(page, PAGE_SIZE);
         // check for reading error?
+    }
+    if (file_length % PAGE_SIZE) {
+        fs.seekg(page_num * PAGE_SIZE);
+        fs.read(page, file_length % PAGE_SIZE);
     }
 
     return pages[page_num] = page;
@@ -72,6 +73,8 @@ void Pager::free_pager()
         delete[] pages[i];
         pages[i] = NULL;
     }
+
+    fs.close();
 }
 
 void Pager::flush()
